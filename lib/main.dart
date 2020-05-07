@@ -36,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage>
   Widget build(BuildContext context) {
     return Scaffold(
         body: SafeArea(
-          top: false,
+      top: false,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -46,7 +46,13 @@ class _MyHomePageState extends State<MyHomePage>
             child: Container(
               padding: EdgeInsets.only(top: 30, left: 20),
               color: Color(0xFFF3D4DA),
-              child: Text("Blood Bank", style: TextStyle(color: Colors.grey[500], fontSize: 45, fontWeight: FontWeight.bold),),
+              child: Text(
+                "Blood Bank",
+                style: TextStyle(
+                    color: Color(0xFFa59fc4),
+                    fontSize: 45,
+                    fontWeight: FontWeight.bold),
+              ),
             ),
           ),
           Expanded(
@@ -71,17 +77,19 @@ class _MyHomePageState extends State<MyHomePage>
                     SizedBox(
                       height: 40,
                     ),
-                    InkWell(
-                      child: Container(
-                        width: double.infinity,
+                    RaisedButton(
+                      padding: EdgeInsets.all(0.0),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                      child: Ink(
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
                           gradient: LinearGradient(colors: [
                             Color(0xFFed97a7),
                             Color(0xFFeab6c0),
                           ]),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
-                        child: Align(
+                        child: Container(
                           alignment: Alignment.center,
                           child: Text(
                             _isLogin ? "Login" : "Sign Up", //Color(0xFF212121)
@@ -92,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage>
                           ),
                         ),
                       ),
-                      onTap: () {
+                      onPressed: () {
                         Navigator.push(
                             context,
                             PageTransition(
