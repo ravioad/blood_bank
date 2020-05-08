@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "719648518642",
+    "firebase_url": "https://blood-bank-ca858.firebaseio.com",
+    "project_id": "blood-bank-ca858",
+    "storage_bucket": "blood-bank-ca858.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:719648518642:android:7113000d909df72d15bb6b",
+        "android_client_info": {
+          "package_name": "com.ravioad.bloodbank"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "719648518642-pdg2cjdf5urasg23gturlr7cpjomi80u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWaxqaJVPNdNeCjRWyBrDS9DfpcT7ZH-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "719648518642-pdg2cjdf5urasg23gturlr7cpjomi80u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -34,9 +34,20 @@ class _LoginPageState extends State<LoginPage> {
           appBar: AppBar(
             backgroundColor: background,
             elevation: 0,
-            actions: <Widget>[FlatButton(child: Text("Don't have account? Sign Up", style: TextStyle(color: accentColor, fontSize: 15),), onPressed: (){
-              Navigator.push(context, PageTransition(type: PageTransitionType.fade, child: SignupPage()));
-            },),],
+            actions: <Widget>[
+              FlatButton(
+                child: Text(
+                  "Don't have account? Sign Up",
+                  style: TextStyle(color: accentColor, fontSize: 15),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      PageTransition(
+                          type: PageTransitionType.fade, child: SignupPage()));
+                },
+              ),
+            ],
           ),
           body: Form(
             key: _formKey,
@@ -50,10 +61,20 @@ class _LoginPageState extends State<LoginPage> {
                         image: AssetImage('assets/images/loginback.png'),
                         fit: BoxFit.fitWidth),
                   ),
-                  
                 ),
-                showTextField(),
-                showPasswordField(),
+                showTextField(
+                    labelText: "Enter Email",
+                    obsecureText: false,
+                    errorMsg: "Email can't be empty.",
+                    controller: _emailController,
+                    variable: _email),
+                showTextField(
+                    labelText: "Enter Password",
+                    obsecureText: true,
+                    errorMsg: "Password can't be empty.",
+                    controller: _passwordController,
+                    variable: _password),
+                //showPasswordField(),
                 showButton()
               ],
             ),
@@ -100,14 +121,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget showTextField() {
+  Widget showTextField(
+      {labelText, obsecureText, errorMsg, controller, variable}) {
     return Padding(
-      padding: EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 20),
+      padding: EdgeInsets.only(left: 30, right: 30, bottom: 0, top: 20),
       child: TextFormField(
-        controller: _emailController,
+        controller: controller,
         decoration: InputDecoration(
           //errorText: _validate ? 'Email can\'t be empty' : null,
-          labelText: "Enter Email",
+          labelText: labelText,
           labelStyle: TextStyle(
             color: accentColor,
           ),
@@ -120,37 +142,11 @@ class _LoginPageState extends State<LoginPage> {
               borderRadius: BorderRadius.circular(25),
               borderSide: BorderSide(color: accentColor, width: 2)),
         ),
+        obscureText: obsecureText,
         keyboardType: TextInputType.emailAddress,
-        style: TextStyle(fontFamily: "Baloo2"),
-        validator: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
-        onSaved: (value) => _email = value.trim(),
-      ),
-    );
-  }
-
-  Widget showPasswordField() {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20, 5, 20, 20),
-      child: TextFormField(
-        decoration: InputDecoration(
-          labelText: "Enter Password",
-          labelStyle: TextStyle(
-            color: accentColor,
-          ),
-          focusColor: Colors.white,
-          fillColor: Colors.white,
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(25),
-              borderSide: BorderSide(color: accentColor)),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(25),
-              borderSide: BorderSide(color: accentColor, width: 2)),
-        ),
-        keyboardType: TextInputType.emailAddress,
-        obscureText: true,
-        style: TextStyle(fontFamily: "Baloo2"),
-        validator: (value) => value.isEmpty ? 'Password can\'t be empty' : null,
-        onSaved: (value) => _password = value.trim(),
+        style: TextStyle(fontFamily: "Baloo2", fontSize: 18),
+        validator: (value) => value.isEmpty ? errorMsg : null,
+        onSaved: (value) => variable = value.trim(),
       ),
     );
   }

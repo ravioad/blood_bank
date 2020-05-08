@@ -16,8 +16,8 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Baloo2',
         primarySwatch: Colors.blue,
       ),
-      //  home: SignupPage(),
-      home: MyHomePage(),
+      home: SignupPage(),
+      // home: MyHomePage(),  
     );
   }
 }
