@@ -16,8 +16,9 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Baloo2',
         primarySwatch: Colors.blue,
       ),
-      home: SignupPage(),
-      // home: MyHomePage(),  
+     home: SignupPage(),
+      // home: MyHomePage(),
+    // home: LoginPage(),
     );
   }
 }
@@ -27,8 +28,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage> {
   bool _isLogin = true;
   Color textColor = Colors.grey[600];
 
@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage>
         body: SafeArea(
       top: false,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Expanded(
@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage>
               decoration: BoxDecoration(
                 image: DecorationImage(
                     image: AssetImage('assets/images/background.jpg'),
-                    fit: BoxFit.fitWidth),
+                    fit: BoxFit.cover),
               ),
             ),
           ),
@@ -104,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage>
                             child: Text(
                               _isLogin
                                   ? "Login"
-                                  : "Sign Up", //Color(0xFF212121)
+                                  : "Register", //Color(0xFF212121)
                               style: TextStyle(
                                   color: Colors.white70,
                                   fontSize: 30,
@@ -124,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage>
                       FlatButton(
                         child: Text(
                           _isLogin
-                              ? "Don't have account? Signup here:"
+                              ? "Don't have account? Register here:"
                               : "Already have account? Login here:",
                           style: TextStyle(color: textColor, fontSize: 15),
                         ),

@@ -1,21 +1,27 @@
 import 'package:bloodbank/login_signup/signup.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:bloodbank/widgets/widgets.dart';
+
+Widgets widgets = Widgets();
 
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
   final _formKey = new GlobalKey<FormState>();
   Color background = Color(0xFFF3D4DA);
   Color accentColor = Color(0xFF584d9b);
   String _email, _password;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _validate = false;
 
+  bool _validate = false, _rememberMe = false;
+  double cardHeight = 300;
   @override
   void dispose() {
     _emailController.dispose();
@@ -31,51 +37,71 @@ class _LoginPageState extends State<LoginPage> {
         top: false,
         child: Scaffold(
           backgroundColor: background,
-          appBar: AppBar(
-            backgroundColor: background,
-            elevation: 0,
-            actions: <Widget>[
-              FlatButton(
-                child: Text(
-                  "Don't have account? Sign Up",
-                  style: TextStyle(color: accentColor, fontSize: 15),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      PageTransition(
-                          type: PageTransitionType.fade, child: SignupPage()));
-                },
-              ),
-            ],
-          ),
           body: Form(
             key: _formKey,
-            child: ListView(
-              shrinkWrap: true,
+            child: Stack(
+              fit: StackFit.expand,
               children: <Widget>[
-                Container(
-                  height: 330,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage('assets/images/loginback.png'),
-                        fit: BoxFit.fitWidth),
-                  ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(top: 30),
+                      height: 250,
+                      decoration: BoxDecoration(
+                        // color: Colors.red,
+                        image: DecorationImage(
+                            image: AssetImage(
+                                'assets/images/signupbackground.png'),
+                            fit: BoxFit.fitWidth),
+                      ),
+                    ),
+                  ],
                 ),
-                showTextField(
-                    labelText: "Enter Email",
-                    obsecureText: false,
-                    errorMsg: "Email can't be empty.",
-                    controller: _emailController,
-                    variable: _email),
-                showTextField(
-                    labelText: "Enter Password",
-                    obsecureText: true,
-                    errorMsg: "Password can't be empty.",
-                    controller: _passwordController,
-                    variable: _password),
-                //showPasswordField(),
-                showButton()
+                SingleChildScrollView(
+                  padding: EdgeInsets.only(left: 25, right: 25, top: 60),
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: 180,
+                      ),
+                      formCard(),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          GestureDetector(
+                            child: Checkbox(
+                              activeColor: accentColor,
+                              value: _rememberMe,
+                              onChanged: (value) {
+                                setState(() {
+                                  _rememberMe = value;
+                                  Fluttertoast.showToast(
+                                      msg: value.toString(),
+                                      toastLength: Toast.LENGTH_SHORT);
+                                });
+                              },
+                            ),
+                          ),
+                          Text(
+                            "Remember me",
+                            style: TextStyle(color: accentColor, fontSize: 20),
+                          ),
+                          SizedBox(
+                            width: 30,
+                          ),
+                          widgets.loginButton(onPressed: validateAndSubmit)
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                      )
+                    ],
+                  ),
+                )
               ],
             ),
           ),
@@ -84,80 +110,20 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget showButton() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 70, vertical: 10),
-      child: RaisedButton(
-        padding: EdgeInsets.all(0.0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Ink(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [
-              Color(0xFF968fbc),
-              Color(0xFFD1CFDA),
-            ]),
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-          ),
-          child: Container(
-            alignment: Alignment.center,
-            child: Text(
-              "Login", //Color(0xFF212121)
-              style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-        onPressed: () {
-          // setState(() {
-          //   _emailController.text.isEmpty
-          //       ? _validate = true
-          //       : _validate = false;
-          // });
-          validateAndSubmit();
-        },
-      ),
-    );
-  }
-
-  Widget showTextField(
-      {labelText, obsecureText, errorMsg, controller, variable}) {
-    return Padding(
-      padding: EdgeInsets.only(left: 30, right: 30, bottom: 0, top: 20),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          //errorText: _validate ? 'Email can\'t be empty' : null,
-          labelText: labelText,
-          labelStyle: TextStyle(
-            color: accentColor,
-          ),
-          focusColor: Colors.white,
-          fillColor: Colors.white,
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(25),
-              borderSide: BorderSide(color: accentColor)),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(25),
-              borderSide: BorderSide(color: accentColor, width: 2)),
-        ),
-        obscureText: obsecureText,
-        keyboardType: TextInputType.emailAddress,
-        style: TextStyle(fontFamily: "Baloo2", fontSize: 18),
-        validator: (value) => value.isEmpty ? errorMsg : null,
-        onSaved: (value) => variable = value.trim(),
-      ),
-    );
-  }
-
   bool validateAndSave() {
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
+      setState(() {
+        cardHeight = 300;
+      });
       return true;
+    } else {
+      setState(() {
+        cardHeight = 350;
+      });
+      return false;
     }
-    return false;
   }
 
   void validateAndSubmit() async {
@@ -185,6 +151,8 @@ class _LoginPageState extends State<LoginPage> {
         //   widget.loginCallback();
         // }
       } catch (e) {
+        Fluttertoast.showToast(
+            msg: "emptiessssssssss", toastLength: Toast.LENGTH_SHORT);
         print('Error: $e');
         setState(() {
           // _isLoading = false;
@@ -197,5 +165,91 @@ class _LoginPageState extends State<LoginPage> {
 
   Color hexToColor(String code) {
     return new Color(int.parse(code.substring(1, 7), radix: 16) + 0xFF000000);
+  }
+
+  Widget formCard() {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 400),
+      width: double.infinity,
+      height: cardHeight,
+      margin: EdgeInsets.only(top: 30),
+      padding: EdgeInsets.only(bottom: 1),
+      decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(8.0),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black12,
+                offset: Offset(0.0, 0.75),
+                blurRadius: 15.0),
+            BoxShadow(
+                color: Colors.black12,
+                offset: Offset(0.0, 0.75),
+                blurRadius: 10.0),
+            BoxShadow(
+                color: Colors.black12,
+                offset: Offset(0.0, 0.75),
+                blurRadius: 10.0),
+          ]),
+      child: Padding(
+        padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 4.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              "Login",
+              style: TextStyle(
+                  color: accentColor,
+                  fontSize: 35,
+                  fontWeight: FontWeight.bold),
+            ),
+            widgets.showTextField(
+                labelText: "Email",
+                obsecureText: false,
+                inputType: TextInputType.emailAddress,
+                controller: _emailController,
+                errorMsg: "Email not found",
+                variable: _email,
+                accentColor: accentColor),
+            widgets.showTextField(
+                labelText: "Password",
+                inputType: TextInputType.text,
+                obsecureText: true,
+                controller: _passwordController,
+                errorMsg: "Password not found",
+                variable: _password,
+                accentColor: accentColor),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: FlatButton(
+                child: RichText(
+                  text: TextSpan(
+                    text: "Don't have account? ",
+                    style: TextStyle(color: accentColor, fontSize: 15),
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: "Register",
+                        style: TextStyle(
+                          color: accentColor,
+                          fontSize: 15,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      PageTransition(
+                          type: PageTransitionType.fade, child: SignupPage()));
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
