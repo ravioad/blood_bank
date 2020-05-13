@@ -1,4 +1,6 @@
 import 'package:bloodbank/login_signup/signup.dart';
+import 'package:bloodbank/rootpage.dart';
+import 'package:bloodbank/services/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:page_transition/page_transition.dart';
@@ -7,6 +9,11 @@ import 'package:bloodbank/widgets/widgets.dart';
 Widgets widgets = Widgets();
 
 class LoginPage extends StatefulWidget {
+  final VoidCallback loginCallback;
+  final BaseAuth auth;
+
+  const LoginPage({Key key, this.loginCallback, this.auth}) : super(key: key);
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -19,9 +26,17 @@ class _LoginPageState extends State<LoginPage>
   String _email, _password;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-
-  bool _validate = false, _rememberMe = false;
+  bool _isLoading = false;
+  String _errorMessage = "";
+  bool _rememberMe = false;
   double cardHeight = 300;
+  String userId = "";
+  @override
+  void initState() {
+    userId = "";
+    super.initState();
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -97,6 +112,10 @@ class _LoginPageState extends State<LoginPage>
                         ],
                       ),
                       SizedBox(
+                        height: 10,
+                      ),
+                      showErrorMessage(),
+                      SizedBox(
                         height: 20,
                       )
                     ],
@@ -108,6 +127,23 @@ class _LoginPageState extends State<LoginPage>
         ),
       ),
     );
+  }
+
+  Widget showErrorMessage() {
+    if (_errorMessage.length > 0 && _errorMessage != null) {
+      return Text(
+        _errorMessage,
+        style: TextStyle(
+            fontSize: 13,
+            color: Colors.red,
+            height: 1.0,
+            fontWeight: FontWeight.w300),
+      );
+    } else {
+      return Container(
+        height: 0,
+      );
+    }
   }
 
   bool validateAndSave() {
@@ -128,35 +164,31 @@ class _LoginPageState extends State<LoginPage>
 
   void validateAndSubmit() async {
     if (_formKey.currentState.validate()) {
-      // setState(() {
-      //   _errorMessage = "";
-      //   _isLoading = true;
-      // });
+      setState(() {
+        _errorMessage = "";
+        _isLoading = true;
+      });
     }
     if (validateAndSave()) {
-      String userId = "";
       print("clicked");
+      String Id = "";
       try {
-        // if (isLoginForm) {
-        //   userId = await widget.auth.signIn(_email, _password);
-        //   print('Signed In: $userId');
-        // } else {
-        //   userId = await widget.auth.signUp(_email, _password);
-        //   print('Signed Up User: $userId');
-        // }
-        // setState(() {
-        //   _isLoading = false;
-        // });
-        // if (userId.length > 0 && userId != null && isLoginForm) {
-        //   widget.loginCallback();
-        // }
+        Id = await widget.auth.signIn(email: _email, password: _password);
+        print('Signed In: $Id');
+        setState(() {
+          userId = Id;
+          _isLoading = false;
+        });
+        if (userId.length > 0 && userId != null) {
+          print("callback times");
+          widget.loginCallback();
+          Navigator.pop(context);
+        }
       } catch (e) {
-        Fluttertoast.showToast(
-            msg: "emptiessssssssss", toastLength: Toast.LENGTH_SHORT);
         print('Error: $e');
         setState(() {
-          // _isLoading = false;
-          // _errorMessage = e.message;
+          _isLoading = false;
+          _errorMessage = e.message;
           _formKey.currentState.reset();
         });
       }
@@ -204,22 +236,8 @@ class _LoginPageState extends State<LoginPage>
                   fontSize: 35,
                   fontWeight: FontWeight.bold),
             ),
-            widgets.showTextField(
-                labelText: "Email",
-                obsecureText: false,
-                inputType: TextInputType.emailAddress,
-                controller: _emailController,
-                errorMsg: "Email not found",
-                variable: _email,
-                accentColor: accentColor),
-            widgets.showTextField(
-                labelText: "Password",
-                inputType: TextInputType.text,
-                obsecureText: true,
-                controller: _passwordController,
-                errorMsg: "Password not found",
-                variable: _password,
-                accentColor: accentColor),
+            showTextField(accentColor: accentColor),
+            showPasswordField(accentColor: accentColor),
             Align(
               alignment: Alignment.bottomCenter,
               child: FlatButton(
@@ -249,6 +267,64 @@ class _LoginPageState extends State<LoginPage>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget showTextField({accentColor}) {
+    return Padding(
+      padding: EdgeInsets.only(left: 10, right: 10, bottom: 0, top: 20),
+      child: TextFormField(
+        controller: _emailController,
+        decoration: InputDecoration(
+          //errorText: _validate ? 'Email can\'t be empty' : null,
+          labelText: "Email",
+          labelStyle: TextStyle(
+            color: accentColor,
+          ),
+          focusColor: Colors.white,
+          fillColor: Colors.white,
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: accentColor)),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: accentColor, width: 2.5)),
+        ),
+        obscureText: false,
+        keyboardType: TextInputType.emailAddress,
+        style: TextStyle(fontFamily: "Baloo2", fontSize: 18),
+        validator: (value) => value.isEmpty ? "Email not found" : null,
+        onSaved: (value) => _email = value.trim(),
+      ),
+    );
+  }
+
+  Widget showPasswordField({accentColor}) {
+    return Padding(
+      padding: EdgeInsets.only(left: 10, right: 10, bottom: 0, top: 20),
+      child: TextFormField(
+        controller: _passwordController,
+        decoration: InputDecoration(
+          //errorText: _validate ? 'Email can\'t be empty' : null,
+          labelText: "Password",
+          labelStyle: TextStyle(
+            color: accentColor,
+          ),
+          focusColor: Colors.white,
+          fillColor: Colors.white,
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: accentColor)),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: accentColor, width: 2.5)),
+        ),
+        obscureText: true,
+        keyboardType: TextInputType.text,
+        style: TextStyle(fontFamily: "Baloo2", fontSize: 18),
+        validator: (value) => value.isEmpty ? "Password not found" : null,
+        onSaved: (value) => _password = value.trim(),
       ),
     );
   }

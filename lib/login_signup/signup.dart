@@ -1,5 +1,8 @@
 import 'package:bloodbank/login_signup/login.dart';
+import 'package:bloodbank/models/user.dart';
+import 'package:bloodbank/services/authentication.dart';
 import 'package:bloodbank/widgets/widgets.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:page_transition/page_transition.dart';
@@ -7,12 +10,19 @@ import 'package:page_transition/page_transition.dart';
 Widgets widgets = Widgets();
 
 class SignupPage extends StatefulWidget {
+  final BaseAuth auth;
+
+  const SignupPage({Key key, this.auth}) : super(key: key);
+
   @override
   _SignupPageState createState() => _SignupPageState();
 }
 
 class _SignupPageState extends State<SignupPage> {
+  FirebaseDatabase _database = FirebaseDatabase.instance;
+
   final _formKey = new GlobalKey<FormState>();
+
   Color background = Color(0xFFD1CFDA);
   Color accentColor = Color(0xFFef889b);
   final _emailController = TextEditingController();
@@ -23,6 +33,9 @@ class _SignupPageState extends State<SignupPage> {
   List<String> items = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
   List<DropdownMenuItem<String>> _dropdownItems;
   double cardHeight = 550;
+  String _userId = "";
+  String _errorMessage = "";
+  bool _isLoading = false;
   @override
   void initState() {
     _dropdownItems = buildDropDownItems(items);
@@ -81,6 +94,10 @@ class _SignupPageState extends State<SignupPage> {
                       widgets.signupButton(onPressed: validateAndSubmit),
                       SizedBox(
                         height: 20,
+                      ),
+                      showErrorMessage(),
+                      SizedBox(
+                        height: 10,
                       )
                     ],
                   ),
@@ -207,10 +224,6 @@ class _SignupPageState extends State<SignupPage> {
             Align(
               alignment: Alignment.bottomCenter,
               child: FlatButton(
-                // child: Text(
-                //   "Already have account? Login",
-                //   style: TextStyle(color: accentColor, fontSize: 15),
-                // ),
                 child: RichText(
                   text: TextSpan(
                     text: "Already have account? ",
@@ -242,14 +255,41 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
+  Widget showErrorMessage() {
+    if (_errorMessage.length > 0 && _errorMessage != null) {
+      return Text(
+        _errorMessage,
+        style: TextStyle(
+            fontSize: 13,
+            color: Colors.red,
+            height: 1.0,
+            fontWeight: FontWeight.w300),
+      );
+    } else {
+      return Container(
+        height: 0,
+      );
+    }
+  }
+
+  void saveValues() {
+    _name = _nameController.text.trim();
+    _phone = _phoneController.text.trim();
+    _email = _emailController.text.trim();
+    _password = _passwordController.text.trim();
+    _bloodgroup = _bloodgroup;
+  }
+
   bool validateAndSave() {
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
+      saveValues();
       setState(() {
         cardHeight = 550;
         accentColor = Color(0xFFef889b);
       });
+      Fluttertoast.showToast(msg: _nameController.text.toString());
       return true;
     } else {
       setState(() {
@@ -262,38 +302,47 @@ class _SignupPageState extends State<SignupPage> {
 
   void validateAndSubmit() async {
     if (_formKey.currentState.validate()) {
-      // setState(() {
-      //   _errorMessage = "";
-      //   _isLoading = true;
-      // });
+      setState(() {
+        _errorMessage = "";
+        _isLoading = true;
+      });
     }
     if (validateAndSave()) {
-      String userId = "";
-      print("clicked");
       try {
-        // if (isLoginForm) {
-        //   userId = await widget.auth.signIn(_email, _password);
-        //   print('Signed In: $userId');
-        // } else {
-        //   userId = await widget.auth.signUp(_email, _password);
-        //   print('Signed Up User: $userId');
-        // }
-        // setState(() {
-        //   _isLoading = false;
-        // });
-        // if (userId.length > 0 && userId != null && isLoginForm) {
-        //   widget.loginCallback();
-        // }
+        _userId = await widget.auth.signUp(email: _email, password: _password);
+        print('Signed Up User: $_userId');
+        signUpUser(
+            userId: _userId,
+            name: _name,
+            phone: _phone,
+            email: _email,
+            bloodgroup: _bloodgroup);
+        setState(() {
+          _isLoading = false;
+        });
       } catch (e) {
-        Fluttertoast.showToast(
-            msg: "emptiessssssssss", toastLength: Toast.LENGTH_SHORT);
         print('Error: $e');
         setState(() {
-          // _isLoading = false;
-          // _errorMessage = e.message;
+          _isLoading = false;
+          _errorMessage = e.message;
           _formKey.currentState.reset();
         });
       }
     }
+  }
+
+  signUpUser(
+      {String userId,
+      String name,
+      String phone,
+      String email,
+      String bloodgroup}) {
+    User user = User(
+        userId: userId,
+        name: name,
+        phone: phone,
+        email: email,
+        bloodgroup: bloodgroup);
+    _database.reference().child("Users").child(userId).set(user.toJson());
   }
 }

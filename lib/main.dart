@@ -1,5 +1,7 @@
 import 'package:bloodbank/login_signup/login.dart';
 import 'package:bloodbank/login_signup/signup.dart';
+import 'package:bloodbank/rootpage.dart';
+import 'package:bloodbank/services/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -16,14 +18,21 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Baloo2',
         primarySwatch: Colors.blue,
       ),
-     home: SignupPage(),
+      //  home: SignupPage(),
       // home: MyHomePage(),
-    // home: LoginPage(),
+      home: RootPage(
+        auth: Auth(),
+      ),
+      // home: LoginPage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  final VoidCallback loginCallback;
+  final BaseAuth auth;
+
+  const MyHomePage({Key key, this.loginCallback, this.auth}) : super(key: key);
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -117,8 +126,14 @@ class _MyHomePageState extends State<MyHomePage> {
                               context,
                               PageTransition(
                                   type: PageTransitionType.fade,
-                                  child:
-                                      _isLogin ? LoginPage() : SignupPage()));
+                                  child: _isLogin
+                                      ? LoginPage(
+                                          auth: widget.auth,
+                                          loginCallback: widget.loginCallback,
+                                        )
+                                      : SignupPage(
+                                          auth: widget.auth,
+                                        )));
                         },
                       ),
                       FlatButton(
